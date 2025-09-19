@@ -2,7 +2,7 @@ A clean "baseline" moe transformer version to compare against Qwen3 next archite
 
 
 Architecture:
-- Deep seek style MoE (Auxillary loss free routing: https://arxiv.org/abs/2408.15664)
+- Deep seek style MoE (Auxillary loss free routing -- Different from Qwen's usual routing: https://arxiv.org/abs/2408.15664)
 - Zero Centered RMS Norm /w Weight Decay (Concept from Qwen3-Next: https://huggingface.co/Qwen/Qwen3-Next-80B-A3B-Instruct)
 - Gated Attention (G1 per head variant specifically -- https://arxiv.org/abs/2505.06708)
 - Gated Delta Net (Using FLA)
@@ -25,6 +25,7 @@ Infer (hard coded to use checkpoint 10):
 ```
 uv run python basic_inf.py
 ```
+
 
 
 

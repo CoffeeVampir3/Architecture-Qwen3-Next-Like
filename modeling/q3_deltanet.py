@@ -67,7 +67,6 @@ class Qwen3NextGatedDeltaNet(nn.Module):
         self.in_proj_ba = nn.Linear(self.hidden_size, projection_size_ba, bias=False)
 
         # time step projection (discretization)
-        # instantiate once and copy inv_dt in init_weights of PretrainedModel
         self.dt_bias = nn.Parameter(torch.ones(self.num_v_heads))
 
         A = torch.empty(self.num_v_heads).uniform_(0, 16)

@@ -17,15 +17,10 @@ class ModelConfig:
     n_attention_heads: int = 16
     n_key_value_heads: int = 4
 
-                self.num_v_heads = 32
-                self.num_k_heads = 16
-                self.head_k_dim = 128
-                self.head_v_dim = 128
-
-    num_delta_v_heads = 32
-    num_delta_k_heads = 16
-    v_head_dim = 128
-    k_head_dim = 128
+    num_delta_v_heads: int = 32
+    num_delta_k_heads: int = 16
+    v_head_dim: int = 128
+    k_head_dim: int = 128
 
     rms_norm_eps: float = 1e-5
     max_position_embeddings: int = 8192

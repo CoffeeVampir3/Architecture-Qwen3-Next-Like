@@ -14,3 +14,4 @@ build/
 htmlcov/
 .mypy_cache/
 .DS_Store
+uv.lock

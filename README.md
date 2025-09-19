@@ -1,6 +1,3 @@
-A clean "baseline" moe transformer version to compare against Qwen3 next architecture (GDN vs No GDN essentially).
-
-
 Architecture:
 - Deep seek style MoE (Auxillary loss free routing -- Different from Qwen's usual routing: https://arxiv.org/abs/2408.15664)
 - Zero Centered RMS Norm /w Weight Decay (Concept from Qwen3-Next: https://huggingface.co/Qwen/Qwen3-Next-80B-A3B-Instruct)
@@ -25,6 +22,7 @@ Infer (hard coded to use checkpoint 10):
 ```
 uv run python basic_inf.py
 ```
+
 
 
 

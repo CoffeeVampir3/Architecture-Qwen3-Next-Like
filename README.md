@@ -5,6 +5,7 @@ Architecture:
 - Deep seek style MoE (Auxillary loss free routing: https://arxiv.org/abs/2408.15664)
 - Zero Centered RMS Norm /w Weight Decay (Concept from Qwen3-Next: https://huggingface.co/Qwen/Qwen3-Next-80B-A3B-Instruct)
 - Gated Attention (G1 per head variant specifically -- https://arxiv.org/abs/2505.06708)
+- Gated Delta Net (Using the reference of Qwen3-Next delta net from transformers and FLA, https://github.com/huggingface/transformers/tree/d42e96a2a731c4a772e396baa0d915524c873ff0/src/transformers/models/qwen3_next https://github.com/huggingface/transformers/tree/d42e96a2a731c4a772e396baa0d915524c873ff0/src/transformers/models/qwen3_next)
 
 Auxillary stuff:
 - Cut cross entropy training (https://arxiv.org/abs/2411.09009)
@@ -24,6 +25,7 @@ Infer (hard coded to use checkpoint 10):
 ```
 uv run python basic_inf.py
 ```
+
 
 
 

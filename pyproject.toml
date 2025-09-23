@@ -9,18 +9,21 @@ dependencies = [
     "cut-cross-entropy",
     "datasets>=4.0.0",
     "einops>=0.8.1",
-    "flash-attn>=2.8.3",
-    "flash-linear-attention>=0.3.2",
+    "flash-linear-attention",
     "matplotlib>=3.10.6",
     "numpy>=2.3.3",
     "tensorboardx>=2.6.4",
     "torch>=2.8.0",
     "transformers>=4.56.1",
+    "flash-attn>=2.8.3",
 ]
 
 [tool.pyright]
 venvPath = "."
 venv = ".venv"
+
+[tool.uv]
+no-build-isolation-package = ["flash-attn"]
 
 [tool.uv.sources]
 cut-cross-entropy = { git = "https://github.com/apple/ml-cross-entropy.git" }

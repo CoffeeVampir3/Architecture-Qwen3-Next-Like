@@ -40,7 +40,7 @@ class MoEInference:
 
 def main():
     inference = MoEInference(model_path="./checkpoints/checkpoint_epoch_10.safetensors")
-    result = inference.generate("The fast bear couldn't bear")
+    result = inference.generate("She")
     print(result)
 
 if __name__ == "__main__":

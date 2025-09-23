@@ -9,7 +9,7 @@ class MoEGate(nn.Module):
         self.top_k = config.n_experts_per_token
         self.n_routed_experts = config.n_routed_experts
         self.gating_dim = config.hidden_size
-        self.weight = nn.Parameter(torch.empty((self.n_routed_experts, self.gating_dim)))
+        self.weight = nn.Parameter(torch.ones((self.n_routed_experts, self.gating_dim)))
         self.register_buffer('expert_biases', torch.zeros(self.n_routed_experts))
 
     def forward(self, hidden_states):

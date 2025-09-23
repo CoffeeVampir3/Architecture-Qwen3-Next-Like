@@ -15,3 +15,5 @@ htmlcov/
 .mypy_cache/
 .DS_Store
 uv.lock
+logs/
+checkpoints/

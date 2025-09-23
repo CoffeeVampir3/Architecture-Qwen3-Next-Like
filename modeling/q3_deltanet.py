@@ -89,6 +89,15 @@ class Qwen3NextGatedDeltaNet(nn.Module):
         self.chunk_gated_delta_rule = chunk_gated_delta_rule
         self.recurrent_gated_delta_rule = fused_recurrent_gated_delta_rule
 
+        self.reset_parameters()
+
+    def reset_parameters(self):
+        bound = 0.25
+
+        nn.init.uniform_(self.out_proj.weight, -0.06, 0.06)
+        nn.init.uniform_(self.in_proj_qkvz.weight, -bound, bound)
+        nn.init.uniform_(self.in_proj_ba.weight, -bound, bound)
+
     def fix_query_key_value_ordering(self, mixed_qkvz, mixed_ba):
         v_heads_per_k_head = self.num_v_heads // self.num_k_heads
         value_dim_per_k_head = v_heads_per_k_head * self.head_v_dim

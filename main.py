@@ -1,12 +1,14 @@
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
+import time
+from torch.optim.lr_scheduler import LinearLR
 from torch.utils.data import DataLoader, Dataset
 from datasets import load_dataset
 from transformers import AutoTokenizer
 from tqdm import tqdm
 from pathlib import Path
-from utils.trainutils import count_parameters_layerwise, save_checkpoint
+from utils.trainutils import count_parameters_layerwise, save_checkpoint, TBLogger
 from modeling.model import MoEModel
 from modeling.model_config import ModelConfig
 from cut_cross_entropy import linear_cross_entropy
@@ -24,7 +26,7 @@ class TextDataset(Dataset):
         return {'input_ids': self.input_ids[idx]}
 
 def load_and_preprocess_data(max_length=255):
-    dataset = load_dataset("skeskinen/TinyStories-hf", split="train[:5%]")
+    dataset = load_dataset("skeskinen/TinyStories-hf", split="train[:2%]")
     tokenizer = AutoTokenizer.from_pretrained("gpt2")
     tokenizer.pad_token = tokenizer.eos_token
 
@@ -63,32 +65,25 @@ def train(model, train_dataset, tokenizer, num_epochs=10, batch_size=64, learnin
     device = torch.device("cuda")
     model.to(device)
 
-    # optimizer = DistributedShampoo(
-    #     model.parameters(),
-    #     lr=learning_rate,
-    #     betas=(0.9, 0.999),
-    #     epsilon=1e-4,
-    #     grafting_config=AdamPreconditionerConfig(
-    #         beta2=0.999,
-    #         epsilon=1e-4,
-    #     ),
-    # )
-
     rmsnorm_weightdecayed = {'params':[p for name, p in model.named_parameters() if 'rmsnorm.weight' in name], 'weight_decay': 1e-4}
-    others = {'params':[p for name, p in model.named_parameters() if 'rmsnorm.weight' not in name]}
+    others = {'params':[p for name, p in model.named_parameters() if 'rmsnorm.weight' not in name], 'weight_decay': 3e-5}
     optimizer = torch.optim.Adam([rmsnorm_weightdecayed, others], lr=learning_rate)
     #optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate)
 
     #criterion = nn.CrossEntropyLoss()
-    train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True)
+    train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True, drop_last=True)
     scaler = torch.amp.GradScaler("cuda")
 
     checkpoint_dir = Path("checkpoints")
     checkpoint_dir.mkdir(exist_ok=True)
 
+    logger = TBLogger(log_dir='logs/moe_training', enable_grad_logging=True)
+    global_step = 0
+
     for epoch in range(num_epochs):
         model.train()
         total_loss = 0
+        epoch_start_time = time.time()
 
         for batch in tqdm(train_loader):
             input_ids = batch["input_ids"].to(device)
@@ -107,8 +102,26 @@ def train(model, train_dataset, tokenizer, num_epochs=10, batch_size=64, learnin
 
             auxillary_loss_free_update(model, all_topk_indices, update_rate)
 
+            with torch.no_grad():
+                metrics = {
+                    'loss/batch_loss': loss.item(),
+                    'training/learning_rate': optimizer.param_groups[0]['lr'],
+                    'training/update_rate': update_rate,
+                    'training/global_step': global_step
+                }
+
+                logger.log(metrics, step=global_step, model=model, grad_checking=True)
+
         avg_loss = total_loss / len(train_loader)
         print(f"Epoch {epoch+1}/{num_epochs}, Loss: {avg_loss:.4f}")
+
+        epoch_time = time.time() - epoch_start_time
+        epoch_metrics = {
+            'loss/epoch_loss': avg_loss,
+            'training/epoch_time': epoch_time,
+            'training/batches_per_epoch': len(train_loader)
+        }
+        logger.log(epoch_metrics, step=global_step, prefix='epoch/')
 
         checkpoint_path = checkpoint_dir / f"checkpoint_epoch_{epoch+1}.safetensors"
         save_checkpoint(model, optimizer, str(checkpoint_path))
@@ -121,7 +134,7 @@ def main():
     model = MoEModel(config)
 
     count_parameters_layerwise(model)
-    torch.compile(model, mode="reduce-overhead")
+    torch.compile(model, mode="max-autotune")
     train(model, train_dataset, tokenizer)
 
 if __name__ == "__main__":

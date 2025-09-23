@@ -17,6 +17,12 @@ class MoEModel(nn.Module):
 
         self.output_layer = nn.Linear(config.embed_size, config.vocab_size)
 
+        self.reset_parameters()
+
+    def reset_parameters(self):
+        nn.init.normal_(self.embedding.weight, mean=0.0, std=1.0)
+        nn.init.xavier_normal_(self.output_layer.weight)
+
     def forward(self, x):
         x = self.embedding(x)
 

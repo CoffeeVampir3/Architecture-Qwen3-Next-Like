@@ -26,7 +26,7 @@ class TextDataset(Dataset):
         return {'input_ids': self.input_ids[idx]}
 
 def load_and_preprocess_data(max_length=255):
-    dataset = load_dataset("skeskinen/TinyStories-hf", split="train[:2%]")
+    dataset = load_dataset("skeskinen/TinyStories-hf", split="train[:1%]")
     tokenizer = AutoTokenizer.from_pretrained("gpt2")
     tokenizer.pad_token = tokenizer.eos_token
 
@@ -61,7 +61,7 @@ def auxillary_loss_free_update(model, all_topk_indices, update_rate):
                 error = avg_count - count.float()
                 model.layers[layer_idx].mlp.gate.expert_biases[expert_idx] += update_rate * torch.sign(error)
 
-def train(model, train_dataset, tokenizer, num_epochs=10, batch_size=64, learning_rate=1e-4, update_rate=1e-4):
+def train(model, train_dataset, tokenizer, num_epochs=2, batch_size=32, learning_rate=1e-4, update_rate=1e-4):
     device = torch.device("cuda")
     model.to(device)
 

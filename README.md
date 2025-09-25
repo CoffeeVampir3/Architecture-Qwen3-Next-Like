@@ -1,3 +1,5 @@
+[![Discord](https://img.shields.io/discord/232596713892872193?logo=discord)](https://discord.gg/2JhHVh7CGu)
+
 Architecture:
 - Deep seek style MoE (Auxillary loss free routing -- Different from Qwen's usual routing: https://arxiv.org/abs/2408.15664)
 - Zero Centered RMS Norm /w Weight Decay (Concept from Qwen3-Next: https://huggingface.co/Qwen/Qwen3-Next-80B-A3B-Instruct)
@@ -22,6 +24,7 @@ Infer (hard coded to use checkpoint 10):
 ```
 uv run python basic_inf.py
 ```
+
 
 
 
